@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="AssetHub.AssignAssetDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="400" Padding="30" Background="White">
+    <StackPanel>
+        <TextBlock Text="Assign Asset" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <TextBlock Text="Select Employee" Foreground="Gray" Margin="0,0,0,5"/>
+        <ComboBox x:Name="cmbEmployees" DisplayMemberPath="FullName" Height="40" Margin="0,0,0,15"/>
+
+        <TextBlock Text="Select Available Asset" Foreground="Gray" Margin="0,0,0,5"/>
+        <ComboBox x:Name="cmbAssets" DisplayMemberPath="AssetName" Height="40" Margin="0,0,0,30"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="CANCEL" Click="Cancel_Click" Background="Transparent" Foreground="Gray" BorderBrush="Transparent"/>
+            <Button Content="CONFIRM ASSIGNMENT" Click="Assign_Click" Background="#2563EB" Foreground="White" Margin="10,0,0,0"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

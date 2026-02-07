@@ -1,0 +1,27 @@
+﻿<Window x:Class="AssetHub.AddEmployeeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="New Employee" Height="350" Width="350" WindowStartupLocation="CenterScreen">
+    <StackPanel Margin="20">
+        <TextBlock Text="Add New Employee" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+
+        <TextBlock Text="Full Name:"/>
+        <TextBox x:Name="TxtName" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Email:"/>
+        <TextBox x:Name="TxtEmail" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Department:"/>
+        <ComboBox x:Name="CbDept" Margin="0,0,0,10">
+            <ComboBoxItem Content="IT"/>
+            <ComboBoxItem Content="HR"/>
+            <ComboBoxItem Content="Finance"/>
+            <ComboBoxItem Content="Sales"/>
+        </ComboBox>
+
+        <TextBlock Text="Job Title:"/>
+        <TextBox x:Name="TxtTitle" Margin="0,0,0,20"/>
+
+        <Button Content="Save Employee" Click="BtnSave_Click" Background="#4CAF50" Foreground="White" Height="30"/>
+    </StackPanel>
+</Window>

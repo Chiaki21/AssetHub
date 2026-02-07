@@ -1,0 +1,49 @@
+﻿<Page x:Class="AssetHub.DashboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      Title="Dashboard">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="System Overview" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="#007ACC" CornerRadius="10" Margin="0,0,10,0" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Total Assets" Foreground="White" FontSize="14"/>
+                    <TextBlock x:Name="TxtTotalAssets" Text="0" Foreground="White" FontSize="36" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="#E2943B" CornerRadius="10" Margin="5,0,5,0" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Assigned Assets" Foreground="White" FontSize="14"/>
+                    <TextBlock x:Name="TxtAssignedAssets" Text="0" Foreground="White" FontSize="36" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Background="#4CAF50" CornerRadius="10" Margin="10,0,0,0" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Available Stock" Foreground="White" FontSize="14"/>
+                    <TextBlock x:Name="TxtAvailableAssets" Text="0" Foreground="White" FontSize="36" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <TextBlock Grid.Row="2" Text="Recent Database Status: Connected" 
+                   VerticalAlignment="Bottom" Foreground="Gray" FontStyle="Italic"/>
+    </Grid>
+</Page>
