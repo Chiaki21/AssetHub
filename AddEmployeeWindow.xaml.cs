@@ -11,22 +11,22 @@ namespace AssetHub
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(TxtName.Text)) return;
-
             using (var db = new AssetHubDbContext())
             {
-                var emp = new Employee
+                var newEmp = new Employee
                 {
                     FullName = TxtName.Text,
                     Email = TxtEmail.Text,
-                    Department = (CbDept.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                    JobTitle = TxtTitle.Text,
+                    JobTitle = TxtPosition.Text, // Now saving the position
+                    Department = (CmbDept.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                    DateAdded = DateTime.Now,    // Real date
                     IsActive = true
                 };
-                db.Employees.Add(emp);
+
+                db.Employees.Add(newEmp);
                 db.SaveChanges();
+                this.DialogResult = true;
             }
-            this.DialogResult = true;
         }
     }
 }

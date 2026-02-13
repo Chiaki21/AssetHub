@@ -2,20 +2,23 @@
 using System.Linq;
 using System.Windows;
 using AssetHub.Models;
-using Microsoft.EntityFrameworkCore; // Important for DB operations
+using Microsoft.EntityFrameworkCore;
 
 namespace AssetHub
 {
     public partial class AssignAssetWindow : Window
     {
-        private int _assetId; // Store the ID of the asset we are assigning
+        private int _assetId;
 
-        // Constructor receives the Asset object passed from the main page
         public AssignAssetWindow(Asset assetToAssign)
         {
             InitializeComponent();
             _assetId = assetToAssign.AssetId;
-            TxtAssetName.Text = $"Assigning: {assetToAssign.AssetName}";
+
+            // Ensure TxtAssetName exists in your XAML
+            if (TxtAssetName != null)
+                TxtAssetName.Text = $"Assigning: {assetToAssign.AssetName}";
+
             LoadEmployees();
         }
 
@@ -25,9 +28,11 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // Get all active employees to fill the dropdown
+                    // Fetching active employees
                     var employees = db.Employees
+                                      .AsNoTracking() // Better performance for read-only lists
                                       .Where(e => e.IsActive == true)
+                                      .OrderBy(e => e.FullName)
                                       .ToList();
 
                     CbEmployees.ItemsSource = employees;
@@ -35,50 +40,60 @@ namespace AssetHub
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading employees: {ex.Message}");
+                MessageBox.Show($"Error loading employees: {ex.Message}", "Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
         {
-            if (CbEmployees.SelectedValue == null)
+            // 1. Get the selected Employee object directly
+            var selectedEmp = CbEmployees.SelectedItem as Employee;
+
+            if (selectedEmp == null)
             {
-                MessageBox.Show("Please select an employee.");
+                MessageBox.Show("Please select an employee before confirming.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
-            int selectedEmployeeId = (int)CbEmployees.SelectedValue;
 
             try
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // 1. Find the asset in the database
-                    var asset = db.Assets.Find(_assetId);
+                    // 2. Find the asset in the database
+                    var asset = db.Assets.FirstOrDefault(a => a.AssetId == _assetId);
 
                     if (asset != null)
                     {
-                        // 2. Update its properties
-                        asset.AssignedEmployeeId = selectedEmployeeId;
-                        asset.Status = "Assigned"; // Auto-update status!
+                        // 3. Update properties
+                        asset.AssignedEmployeeId = selectedEmp.EmployeeId;
+                        asset.Status = "Assigned";
 
-                        // 3. Save changes
+                        // If you kept the LastModified column, uncomment this:
+                        // asset.LastModified = DateTime.Now;
+
+                        // 4. Save changes
                         db.SaveChanges();
 
-                        MessageBox.Show("Asset assigned successfully!");
-                        this.DialogResult = true; // Tells the parent window we succeeded
+                        MessageBox.Show($"Asset assigned successfully to {selectedEmp.FullName}!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        this.DialogResult = true;
                         this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("The asset could not be found in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Database Error: {ex.Message}");
+                MessageBox.Show($"Database Error: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = false;
             this.Close();
         }
     }

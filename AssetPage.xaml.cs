@@ -58,33 +58,54 @@ namespace AssetHub
         }
 
         // 2. Load Assets (CRASH FIX IS HERE)
+
+        private List<Asset> _allAssets = new List<Asset>();
         private void LoadAssets()
         {
             try
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // Step A: Get raw data from DB
-                    var rawAssets = db.Assets.ToList();
+                    // 1. Fetch data with Eager Loading
+                    // We remove AsNoTracking to ensure the objects are fully "attached"
+                    _allAssets = db.Assets
+                                   .Include(a => a.AssignedEmployee)
+                                   .ToList();
 
-                    // Step B: Sanitize the data (Fix NULLs here)
-                    foreach (var asset in rawAssets)
+                    // 2. Sanitize and Verify
+                    foreach (var asset in _allAssets)
                     {
-                        if (string.IsNullOrEmpty(asset.AssetName)) asset.AssetName = "Unknown Asset";
-                        if (string.IsNullOrEmpty(asset.AssetType)) asset.AssetType = "Unspecified";
                         if (string.IsNullOrEmpty(asset.Status)) asset.Status = "Available";
+
+                        // This will print to your "Output" window in Visual Studio
+                        if (asset.AssignedEmployee != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"SUCCESS: {asset.AssetName} linked to {asset.AssignedEmployee.FullName}");
+                        }
                     }
 
-                    // Step C: Show clean data
-                    AssetItemsControl.ItemsSource = rawAssets;
+                    // 3. Assign to UI
+                    AssetItemsControl.ItemsSource = null;
+                    AssetItemsControl.ItemsSource = _allAssets;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading assets: {ex.Message}");
+                MessageBox.Show($"UI Error: {ex.Message}");
             }
         }
 
+        private void BtnStatus_Click(object sender, RoutedEventArgs e)
+        {
+            var asset = (sender as Button).DataContext as Asset;
+
+            if (asset?.Status == "Assigned" && asset.AssignedEmployee != null)
+            {
+                EmployeeDetailsWindow detailsWindow = new EmployeeDetailsWindow(asset.AssignedEmployee);
+                detailsWindow.Owner = Window.GetWindow(this); // Centers it relative to the app
+                detailsWindow.ShowDialog();
+            }
+        }
         // 3. Add Asset Button
         private void BtnAddAsset_Click(object sender, RoutedEventArgs e)
         {
@@ -96,23 +117,66 @@ namespace AssetHub
         }
 
         // 4. Delete Button (With Database Attach Fix)
+        private void BtnUnassign_Click(object sender, RoutedEventArgs e)
+        {
+            var asset = (sender as Button)?.DataContext as Asset;
+            if (asset == null) return;
+
+            // Only allow unassigning if the asset is actually assigned
+            if (asset.Status != "Assigned")
+            {
+                MessageBox.Show("This asset is already unassigned.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var result = MessageBox.Show($"Are you sure you want to unassign {asset.AssetName}?",
+                                       "Confirm Unassign", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var db = new AssetHubDbContext())
+                    {
+                        var dbAsset = db.Assets.FirstOrDefault(a => a.AssetId == asset.AssetId);
+                        if (dbAsset != null)
+                        {
+                            dbAsset.AssignedEmployeeId = null;
+                            dbAsset.Status = "Available";
+                            db.SaveChanges();
+                        }
+                    }
+                    LoadAssets(); // Refresh the UI
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not unassign: {ex.Message}");
+                }
+            }
+        }
+
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var button = sender as Button;
-                var asset = button.DataContext as Asset;
-
+                var asset = (sender as Button)?.DataContext as Asset;
                 if (asset == null) return;
 
-                if (MessageBox.Show($"Are you sure you want to delete {asset.AssetName}?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                // Use the new custom window instead of MessageBox
+                var dialog = new ConfirmDeleteAssetWindow(asset.AssetName, asset.SerialNumber);
+                dialog.Owner = Window.GetWindow(this);
+
+                if (dialog.ShowDialog() == true)
                 {
                     using (var db = new AssetHubDbContext())
                     {
-                        // Essential fix for "Entity not found" errors
-                        db.Assets.Attach(asset);
-                        db.Assets.Remove(asset);
-                        db.SaveChanges();
+                        // Fetch fresh instance to avoid tracking/attach errors
+                        var dbAsset = db.Assets.FirstOrDefault(a => a.AssetId == asset.AssetId);
+                        if (dbAsset != null)
+                        {
+                            db.Assets.Remove(dbAsset);
+                            db.SaveChanges();
+                        }
                     }
                     LoadAssets();
                 }
@@ -156,6 +220,8 @@ namespace AssetHub
                 LoadAssets();
             }
         }
+
+
 
         private void BtnExportPDF_Click(object sender, RoutedEventArgs e)
         {

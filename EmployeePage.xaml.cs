@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using AssetHub.Models;
+using Microsoft.EntityFrameworkCore; // Required for .Include
 
 namespace AssetHub
 {
@@ -15,15 +16,19 @@ namespace AssetHub
             LoadEmployees();
         }
 
-        // Fetch all employees from SQL Express
         private void LoadEmployees()
         {
             try
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    var list = db.Employees.ToList();
-                    EmployeeGrid.ItemsSource = list;
+                    // Use .Include(e => e.Assets) so we can count them in the UI
+                    var list = db.Employees
+                                 .Include(e => e.Assets)
+                                 .ToList();
+
+                    // Changed from EmployeeGrid to EmployeeItemsControl
+                    EmployeeItemsControl.ItemsSource = list;
                 }
             }
             catch (Exception ex)
@@ -32,30 +37,31 @@ namespace AssetHub
             }
         }
 
-        // Search Logic: Filters by Name, Email, or Department
-        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string query = TxtSearch.Text.ToLower().Trim();
+            // Ensure this matches the x:Name in your XAML exactly
+            if (txtSearch == null) return;
+
+            string query = txtSearch.Text.ToLower().Trim();
 
             try
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // If search is empty, show everyone
                     if (string.IsNullOrWhiteSpace(query))
                     {
                         LoadEmployees();
                         return;
                     }
 
-                    // Perform search
                     var filtered = db.Employees
+                        .Include(emp => emp.Assets)
                         .Where(emp => emp.FullName.ToLower().Contains(query) ||
                                       emp.Email.ToLower().Contains(query) ||
                                       emp.Department.ToLower().Contains(query))
                         .ToList();
 
-                    EmployeeGrid.ItemsSource = filtered;
+                    EmployeeItemsControl.ItemsSource = filtered;
                 }
             }
             catch (Exception ex)
@@ -69,7 +75,52 @@ namespace AssetHub
             AddEmployeeWindow addWin = new AddEmployeeWindow();
             if (addWin.ShowDialog() == true)
             {
-                LoadEmployees(); // Refresh list after adding new person
+                LoadEmployees();
+            }
+        }
+        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. Get the employee object from the button's data context
+            var employeeFromUi = (sender as Button)?.DataContext as Employee;
+            if (employeeFromUi == null) return;
+
+            var dialog = new ConfirmDeleteWindow(employeeFromUi.FullName) { Owner = Window.GetWindow(this) };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    using (var db = new AssetHubDbContext())
+                    {
+                        // 2. Fetch the "Fresh" employee from the DB including their assets
+                        // This prevents the "Already being tracked" error
+                        var employeeToDelete = db.Employees
+                            .Include(emp => emp.Assets)
+                            .FirstOrDefault(emp => emp.EmployeeId == employeeFromUi.EmployeeId);
+
+                        if (employeeToDelete != null)
+                        {
+                            // 3. Unassign all linked assets
+                            foreach (var asset in employeeToDelete.Assets)
+                            {
+                                asset.AssignedEmployeeId = null;
+                                asset.Status = "Available";
+                            }
+
+                            // 4. Delete the employee
+                            db.Employees.Remove(employeeToDelete);
+
+                            // 5. Save everything in one go
+                            db.SaveChanges();
+                        }
+
+                        LoadEmployees(); // Refresh your beautiful UI list
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}");
+                }
             }
         }
     }

@@ -1,18 +1,9 @@
 ﻿using AssetHub.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AssetHub
 {
@@ -29,29 +20,62 @@ namespace AssetHub
 
         private void LoadDropdowns()
         {
-            using (var db = new AssetHubDbContext())
+            try
             {
-                cmbEmployees.ItemsSource = db.Employees.ToList();
-                // Only show assets that aren't already taken
-                cmbAssets.ItemsSource = db.Assets.Where(a => a.Status == "Available").ToList();
+                using (var db = new AssetHubDbContext())
+                {
+                    // Use .AsNoTracking() here for better performance in dropdowns
+                    cmbEmployees.ItemsSource = db.Employees.AsNoTracking().ToList();
+
+                    // Only show assets that aren't already taken
+                    cmbAssets.ItemsSource = db.Assets
+                                              .AsNoTracking()
+                                              .Where(a => a.Status == "Available")
+                                              .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading data: {ex.Message}");
             }
         }
 
         private void Assign_Click(object sender, RoutedEventArgs e)
         {
-            var selectedEmp = (Employee)cmbEmployees.SelectedItem;
-            var selectedAsset = (Asset)cmbAssets.SelectedItem;
+            // 1. Grab the actual objects from the comboboxes
+            var selectedEmp = cmbEmployees.SelectedItem as Employee;
+            var selectedAsset = cmbAssets.SelectedItem as Asset;
 
-            if (selectedEmp == null || selectedAsset == null) return;
-
-            using (var db = new AssetHubDbContext())
+            if (selectedEmp == null || selectedAsset == null)
             {
-                var asset = db.Assets.Find(selectedAsset.AssetId);
-                asset.AssignedEmployeeId = selectedEmp.EmployeeId;
-                asset.Status = "Assigned";
-                db.SaveChanges();
+                MessageBox.Show("Please select both an employee and an asset.", "Selection Required");
+                return;
             }
-            MaterialDesignThemes.Wpf.DialogHost.Close("RootDialog");
+
+            try
+            {
+                using (var db = new AssetHubDbContext())
+                {
+                    // 2. Find the asset in the database using the ID from our selection
+                    var asset = db.Assets.FirstOrDefault(a => a.AssetId == selectedAsset.AssetId);
+
+                    if (asset != null)
+                    {
+                        // 3. Update the Foreign Key and Status
+                        asset.AssignedEmployeeId = selectedEmp.EmployeeId;
+                        asset.Status = "Assigned";
+
+                        db.SaveChanges();
+
+                        // 4. Close the DialogHost using the correct Identifier
+                        MaterialDesignThemes.Wpf.DialogHost.Close("RootDialog");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error assigning asset: {ex.Message}");
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) =>

@@ -26,24 +26,20 @@ public partial class AssetHubDbContext : DbContext
     {
         modelBuilder.Entity<Asset>(entity =>
         {
-            entity.HasKey(e => e.AssetId).HasName("PK__Assets__43492352BC7C57CA");
+            entity.HasKey(e => e.AssetId);
 
-            entity.HasIndex(e => e.SerialNumber, "UQ__Assets__048A0008928AA6F2").IsUnique();
+            entity.HasIndex(e => e.SerialNumber).IsUnique();
 
             entity.Property(e => e.AssetName).HasMaxLength(100);
             entity.Property(e => e.AssetType).HasMaxLength(50);
-            entity.Property(e => e.PurchaseDate).HasColumnType("datetime");
             entity.Property(e => e.SerialNumber).HasMaxLength(100);
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasDefaultValue("Available");
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Available");
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
-            // --- FIXED RELATIONSHIP SECTION ---
-            // We merged the two definitions into one clean link
+            // --- CLEAN RELATIONSHIP (No hardcoded constraint names) ---
             entity.HasOne(d => d.AssignedEmployee)
                 .WithMany(p => p.Assets)
                 .HasForeignKey(d => d.AssignedEmployeeId)
-                .HasConstraintName("FK__Assets__Assigned__6A30C649")
                 .OnDelete(DeleteBehavior.SetNull);
         });
 

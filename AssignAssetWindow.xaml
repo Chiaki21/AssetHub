@@ -21,7 +21,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Cancel" Width="80" Height="30" Margin="0,0,10,0"
                         Click="BtnCancel_Click"/>
-                <Button Content="Confirm Assignment" Width="140" Height="30"
+                <Button Content="Confirm Assignment" Width="170" Height="30"
                         Background="#007ACC" Foreground="White"
                         Click="BtnConfirm_Click"/>
             </StackPanel>
