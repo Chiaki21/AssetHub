@@ -84,7 +84,7 @@
                             Height="45" HorizontalContentAlignment="Left" Padding="10,0" Cursor="Hand">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Logout" Width="20" Height="20" Margin="0,0,15,0" Foreground="#E11D48"/>
-                            <TextBlock Text="Sign Out" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
+                            <TextBlock Text="Log Out" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
