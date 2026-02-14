@@ -19,11 +19,19 @@ public partial class AssetHubDbContext : DbContext
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<ActivityLog> ActivityLogs { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=AssetHubDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<ActivityLog>()
+        .HasKey(l => l.LogId);
+
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Asset>(entity =>
         {
             entity.HasKey(e => e.AssetId);

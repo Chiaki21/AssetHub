@@ -67,14 +67,20 @@ namespace AssetHub
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            // Basic Validation
+            // 1. Basic Validation
             if (string.IsNullOrWhiteSpace(TxtAssetName.Text))
             {
                 MessageBox.Show("Please enter an Asset Name.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Parse price allowing for currency symbols
+            string serialInput = TxtSerialNumber.Text.Trim();
+            if (string.IsNullOrWhiteSpace(serialInput))
+            {
+                MessageBox.Show("Please enter a Serial Number.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (!decimal.TryParse(TxtPrice.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out decimal price))
             {
                 MessageBox.Show("Please enter a valid price.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -85,18 +91,43 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
+                    // 2. DUPLICATE CHECK: Look for any existing asset with this serial number
+                    // We use ToLower() to ensure "sn123" and "SN123" are treated as the same
+                    bool exists = db.Assets.Any(a => a.SerialNumber.ToLower() == serialInput.ToLower());
+
+                    if (exists)
+                    {
+                        MessageBox.Show($"The Serial Number '{serialInput}' already exists in the system.\nPlease check the inventory or enter a unique SN.",
+                                        "Duplicate Serial Number", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return; // Stop the save process
+                    }
+
+                    // 3. Create and Save if unique
                     var newAsset = new Asset
                     {
                         AssetName = TxtAssetName.Text,
                         AssetType = (CbAssetType.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "General",
                         Status = "Available",
                         Price = price,
-                        // Unique Serial Number Generation
-                        SerialNumber = "SN-" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        SerialNumber = serialInput
                     };
 
                     db.Assets.Add(newAsset);
+
+                    // Log creation for the Dashboard
+                    db.ActivityLogs.Add(new ActivityLog
+                    {
+                        Details = $"New asset {newAsset.AssetName} was added to inventory.",
+                        SerialNumber = newAsset.SerialNumber,
+                        ActionDate = DateTime.Now
+                    });
+
                     db.SaveChanges();
+
+                    string assetName = TxtAssetName.Text.Trim();
+                    NotificationService.Show("Success", $"{newAsset.AssetName} added!", NotificationToast.NotificationType.Success);
                 }
 
                 this.DialogResult = true;
@@ -105,7 +136,7 @@ namespace AssetHub
             catch (Exception ex)
             {
                 var message = ex.InnerException?.Message ?? ex.Message;
-                MessageBox.Show($"Error saving asset: {message}", "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
 
