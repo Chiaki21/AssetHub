@@ -34,18 +34,24 @@ namespace AssetHub
                     // FIX: Load everything first to avoid SQL translation errors
                     var allAssets = db.Assets.ToList();
 
-                    var filteredList = allAssets
+                    var filteredList = db.Assets
                         .Where(a => (a.AssetName != null && a.AssetName.ToLower().Contains(query)) ||
-                                    (a.AssetType != null && a.AssetType.ToLower().Contains(query)))
+                                    (a.AssetType != null && a.AssetType.ToLower().Contains(query)) ||
+                                    (a.SerialNumber != null && a.SerialNumber.ToLower().Contains(query))) // Added Serial Number Search
                         .ToList();
+
+
 
                     // Display safe values
                     foreach (var asset in filteredList)
                     {
                         if (asset.AssetName == null) asset.AssetName = "Unknown Asset";
                         if (asset.AssetType == null) asset.AssetType = "Unspecified";
+                        if (asset.SerialNumber == null) asset.SerialNumber = "N/A"; // Handle null serial display
                         if (asset.Status == null) asset.Status = "Available";
                     }
+
+
 
                     AssetItemsControl.ItemsSource = filteredList;
                 }
@@ -143,7 +149,22 @@ namespace AssetHub
                         {
                             dbAsset.AssignedEmployeeId = null;
                             dbAsset.Status = "Available";
+                            dbAsset.UpdatedAt = DateTime.Now;
+
+                            db.ActivityLogs.Add(new ActivityLog
+                            {
+                                Details = $"{dbAsset.AssetName} was unassigned and returned to inventory",
+                                SerialNumber = dbAsset.SerialNumber,
+                                ActionDate = DateTime.Now
+                            });
+
                             db.SaveChanges();
+
+                            NotificationService.Show(
+    "Asset Returned",
+    $"{dbAsset.AssetName} was unassigned and returned to inventory.",
+    NotificationToast.NotificationType.Info
+);
                         }
                     }
                     LoadAssets(); // Refresh the UI
@@ -162,15 +183,17 @@ namespace AssetHub
                 var asset = (sender as Button)?.DataContext as Asset;
                 if (asset == null) return;
 
-                // Use the new custom window instead of MessageBox
+                // Use your custom delete window
                 var dialog = new ConfirmDeleteAssetWindow(asset.AssetName, asset.SerialNumber);
                 dialog.Owner = Window.GetWindow(this);
 
                 if (dialog.ShowDialog() == true)
                 {
+                    // Store the name in a variable before deleting
+                    string deletedName = asset.AssetName;
+
                     using (var db = new AssetHubDbContext())
                     {
-                        // Fetch fresh instance to avoid tracking/attach errors
                         var dbAsset = db.Assets.FirstOrDefault(a => a.AssetId == asset.AssetId);
                         if (dbAsset != null)
                         {
@@ -178,7 +201,15 @@ namespace AssetHub
                             db.SaveChanges();
                         }
                     }
+
                     LoadAssets();
+
+                    // Use the name in the notification
+                    NotificationService.Show(
+                        "Asset Deleted",
+                        $"{deletedName} has been permanently removed.",
+                        NotificationToast.NotificationType.Warning
+                    );
                 }
             }
             catch (Exception ex)
@@ -220,9 +251,6 @@ namespace AssetHub
                 LoadAssets();
             }
         }
-
-
-
         private void BtnExportPDF_Click(object sender, RoutedEventArgs e)
         {
             List<Asset> assets;

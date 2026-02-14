@@ -94,39 +94,74 @@
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="White" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Margin="0,0,10,0">
-                <Grid Margin="25">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Asset Distribution" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl x:Name="CategorySummaryControl">
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <Border Background="White" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Margin="0,0,0,20">
+                    <Grid Margin="25">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="150"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Asset Distribution" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="CategorySummaryControl">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#F1F5F9" BorderThickness="0,0,0,1" Padding="0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Category}" Foreground="#475569" FontSize="14" VerticalAlignment="Center"/>
+                                                <Border Grid.Column="1" Background="#EFF6FF" CornerRadius="10" Padding="12,4">
+                                                    <TextBlock Text="{Binding Count}" Foreground="#2563EB" FontWeight="Bold" FontSize="12"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <Border Background="White" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1">
+                    <Grid Margin="25">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Recent Employees" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
+                        <ItemsControl x:Name="RecentEmployeesControl" Grid.Row="1">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="#F1F5F9" BorderThickness="0,0,0,1" Padding="0,12">
+                                    <Border BorderBrush="#F1F5F9" BorderThickness="0,0,0,1" Padding="0,10">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Category}" Foreground="#475569" FontSize="15" VerticalAlignment="Center"/>
-                                            <Border Grid.Column="1" Background="#EFF6FF" CornerRadius="10" Padding="12,4">
-                                                <TextBlock Text="{Binding Count}" Foreground="#2563EB" FontWeight="Bold" FontSize="12"/>
+                                            <Border Width="35" Height="35" CornerRadius="17.5" Background="#DBEAFE">
+                                                <TextBlock Text="{Binding Initials}" FontSize="12" FontWeight="Bold" Foreground="#2563EB" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Border>
+                                            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" Foreground="#1E293B" FontSize="13"/>
+                                                <TextBlock Text="{Binding JobTitle}" Foreground="#64748B" FontSize="11"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding DateAdded, StringFormat=\{0:MMM dd\}}" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
 
             <Border Grid.Column="1" Background="White" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Margin="10,0,0,0">
                 <Grid Margin="25">
@@ -134,30 +169,29 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Recently Added Employees" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
-                    <ItemsControl x:Name="RecentEmployeesControl" Grid.Row="1">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="#F1F5F9" BorderThickness="0,0,0,1" Padding="0,15">
-                                    <Grid>
+                    <TextBlock Text="Recent Activity" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+                        <ItemsControl x:Name="ActivityFeedControl">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,15">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Width="40" Height="40" CornerRadius="20" Background="#DBEAFE">
-                                            <TextBlock Text="{Binding Initials}" FontSize="13" FontWeight="Bold" Foreground="#2563EB" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="1" Margin="15,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" Foreground="#1E293B" FontSize="14"/>
-                                            <TextBlock Text="{Binding JobTitle}" Foreground="#64748B" FontSize="12"/>
+                                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                            <Ellipse Width="8" Height="8" Fill="#3B82F6"/>
+                                            <Rectangle Width="1" Height="30" Fill="#E2E8F0" Margin="0,2,0,0"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="2" Text="{Binding DateAdded, StringFormat=\{0:MMM dd\}}" Foreground="#94A3B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Margin="12,-2,0,0">
+                                            <TextBlock Text="{Binding Description}" FontSize="13" Foreground="#334155" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding TimeAgo}" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0"/>
+                                        </StackPanel>
                                     </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>

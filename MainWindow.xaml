@@ -5,7 +5,7 @@
         Title="AssetHub" Height="800" Width="1400"
         WindowStartupLocation="CenterScreen" Background="#F8FAFC">
 
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="260"/>
             <ColumnDefinition Width="*"/>
@@ -117,5 +117,13 @@
                    HorizontalAlignment="Stretch" 
                    VerticalAlignment="Stretch"/>
         </Grid>
+
+        <StackPanel x:Name="NotificationArea" 
+            Grid.ColumnSpan="2" 
+            VerticalAlignment="Bottom" 
+            HorizontalAlignment="Right" 
+            Margin="0,0,30,30" 
+            Panel.ZIndex="100"
+            IsHitTestVisible="False"/>
     </Grid>
 </Window>

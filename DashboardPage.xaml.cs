@@ -13,6 +13,7 @@ namespace AssetHub
         {
             InitializeComponent();
             LoadDashboardData();
+            this.Loaded += (s, e) => LoadDashboardData();
         }
 
         private void LoadDashboardData()
@@ -21,41 +22,47 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // 1. Load Stats Cards
-                    int total = db.Assets.Count();
-                    int assigned = db.Assets.Count(a => a.Status == "Assigned");
-                    int available = db.Assets.Count(a => a.Status == "Available");
-                    decimal totalValue = db.Assets.Sum(a => a.Price ?? 0);
+                    // 1. Stats Cards
+                    // These stay the same as they reflect the CURRENT state of your inventory
+                    TxtTotalAssets.Text = db.Assets.Count().ToString();
+                    TxtAssignedAssets.Text = db.Assets.Count(a => a.Status == "Assigned").ToString();
+                    TxtAvailableAssets.Text = db.Assets.Count(a => a.Status == "Available").ToString();
+                    TxtTotalValue.Text = db.Assets.Sum(a => a.Price ?? 0).ToString("C2");
 
-                    TxtTotalAssets.Text = total.ToString();
-                    TxtAssignedAssets.Text = assigned.ToString();
-                    TxtAvailableAssets.Text = available.ToString();
-                    TxtTotalValue.Text = totalValue.ToString("C2"); // Formats to local currency (₱ or $)
-
-                    // 2. Load Category Distribution (LINQ GroupBy)
-                    var categorySummary = db.Assets
+                    // 2. Load Category Distribution
+                    CategorySummaryControl.ItemsSource = db.Assets
                         .GroupBy(a => a.AssetType)
-                        .Select(group => new
-                        {
-                            Category = group.Key ?? "Uncategorized",
-                            Count = group.Count()
+                        .Select(g => new {
+                            Category = g.Key ?? "Uncategorized",
+                            Count = g.Count()
                         })
-                        .OrderByDescending(x => x.Count)
-                        .ToList();
-
-                    CategorySummaryControl.ItemsSource = categorySummary;
+                        .OrderByDescending(x => x.Count).ToList();
 
                     // 3. Load Recent Employees
-                    var recentEmployees = db.Employees
-                        .OrderByDescending(e => e.DateAdded)
-                        .Take(5)
+                    RecentEmployeesControl.ItemsSource = db.Employees
+                        .OrderByDescending(e => e.DateAdded).Take(5).ToList();
+
+                    // 4. Smart Activity Feed (NOW USING ACTIVITYLOGS TABLE)
+                    // This prevents "overwriting" history because every action is a new row
+                    var recentActivities = db.ActivityLogs
+                        .AsNoTracking()
+                        .OrderByDescending(l => l.LogId) // Pull the most recent logs based on ID
+                        .Take(10) // Show a longer history of 10 items
+                        .ToList()
+                        .Select(l => new
+                        {
+                            // Formats the output to include the details (with employee name) and Serial Number
+                            Description = $"{l.Details} | SN: {l.SerialNumber ?? "N/A"}",
+                            TimeAgo = l.ActionDate.ToString("MMM dd, hh:mm tt")
+                        })
                         .ToList();
 
-                    RecentEmployeesControl.ItemsSource = recentEmployees;
+                    ActivityFeedControl.ItemsSource = recentActivities;
                 }
             }
             catch (Exception ex)
             {
+                // Helpful for debugging if the ActivityLogs table is missing or LogId is null
                 System.Diagnostics.Debug.WriteLine($"Dashboard Load Error: {ex.Message}");
             }
         }

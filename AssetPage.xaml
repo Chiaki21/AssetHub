@@ -64,7 +64,7 @@
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button Content="+ Add Asset" Click="BtnAddAsset_Click" Background="#2563EB" Foreground="White" BorderThickness="0" Padding="20,0" FontWeight="SemiBold" Height="45" VerticalContentAlignment="Center">
+                <Button Content="+ Add Asset" Click="BtnAddAsset_Click" Background="#2563EB" Foreground="White" BorderThickness="0" Padding="20,0" FontWeight="SemiBold" Height="45" VerticalContentAlignment="Center" materialDesign:ButtonAssist.CornerRadius="8">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="8"/>

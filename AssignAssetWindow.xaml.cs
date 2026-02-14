@@ -46,12 +46,10 @@ namespace AssetHub
 
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
         {
-            // 1. Get the selected Employee object directly
             var selectedEmp = CbEmployees.SelectedItem as Employee;
-
             if (selectedEmp == null)
             {
-                MessageBox.Show("Please select an employee before confirming.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please select an employee.");
                 return;
             }
 
@@ -59,35 +57,36 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // 2. Find the asset in the database
                     var asset = db.Assets.FirstOrDefault(a => a.AssetId == _assetId);
 
                     if (asset != null)
                     {
-                        // 3. Update properties
+                        // --- STEP 1: Update the actual Asset in the database ---
                         asset.AssignedEmployeeId = selectedEmp.EmployeeId;
                         asset.Status = "Assigned";
+                        asset.UpdatedAt = DateTime.Now;
 
-                        // If you kept the LastModified column, uncomment this:
-                        // asset.LastModified = DateTime.Now;
+                        // --- STEP 2: Create the permanent Activity Log ---
+                        db.ActivityLogs.Add(new ActivityLog
+                        {
+                            Details = $"{asset.AssetName} assigned to {selectedEmp.FullName}",
+                            SerialNumber = asset.SerialNumber,
+                            ActionDate = DateTime.Now
+                        });
 
-                        // 4. Save changes
+                        // --- STEP 3: Save BOTH changes to the database ---
                         db.SaveChanges();
 
-                        MessageBox.Show($"Asset assigned successfully to {selectedEmp.FullName}!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        NotificationService.Show("Assigned", $"Asset linked to {selectedEmp.FullName}", NotificationToast.NotificationType.Info);
 
                         this.DialogResult = true;
                         this.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("The asset could not be found in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Database Error: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
 

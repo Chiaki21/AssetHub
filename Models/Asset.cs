@@ -11,8 +11,10 @@ namespace AssetHub.Models
         public string SerialNumber { get; set; }
         public string Status { get; set; }
         public DateTime? PurchaseDate { get; set; }
-
         public decimal? Price { get; set; }
+        public DateTime? CreatedAt { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
 
 
         // This is the Foreign Key (the ID number)
