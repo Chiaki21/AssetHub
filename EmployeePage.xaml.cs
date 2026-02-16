@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AssetHub.Models;
+using Microsoft.EntityFrameworkCore; // Required for .Include
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using AssetHub.Models;
-using Microsoft.EntityFrameworkCore; // Required for .Include
+using System.Windows.Input;
 
 namespace AssetHub
 {
@@ -122,6 +123,21 @@ namespace AssetHub
                     MessageBox.Show($"Error: {ex.Message}");
                 }
             }
+        }
+
+        private void EmployeeRow_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var employee = (sender as Border)?.DataContext as Employee;
+            if (employee == null) return;
+
+            var detailWindow = new EmployeeDetailWindow(employee.EmployeeId);
+            detailWindow.Owner = Window.GetWindow(this);
+
+            // This code waits here until the window is closed
+            detailWindow.ShowDialog();
+
+            // REFRESH the main list as soon as they close the popup!
+            LoadEmployees();
         }
     }
 }

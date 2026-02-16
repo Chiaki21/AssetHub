@@ -46,10 +46,12 @@ namespace AssetHub
 
         private void BtnConfirm_Click(object sender, RoutedEventArgs e)
         {
-            var selectedEmp = CbEmployees.SelectedItem as Employee;
-            if (selectedEmp == null)
+            // 1. Get the text currently typed/selected in the ComboBox
+            string inputName = CbEmployees.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(inputName))
             {
-                MessageBox.Show("Please select an employee.");
+                NotificationService.Show("Validation", "Please select an employee.", NotificationToast.NotificationType.Warning);
                 return;
             }
 
@@ -57,16 +59,29 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
+                    // 2. VALIDATION: Check if this name exists in our database
+                    // We do a case-insensitive check to be user-friendly
+                    var selectedEmp = db.Employees
+                        .FirstOrDefault(emp => emp.FullName.ToLower() == inputName.ToLower() && emp.IsActive == true);
+
+                    if (selectedEmp == null)
+                    {
+                        // If no match is found, show a warning and stop the process
+                        NotificationService.Show("Invalid Employee",
+                            $"'{inputName}' is not a registered employee. Please select from the list.",
+                            NotificationToast.NotificationType.Warning);
+                        return;
+                    }
+
+                    // 3. Proceed with Assignment since the employee is valid
                     var asset = db.Assets.FirstOrDefault(a => a.AssetId == _assetId);
 
                     if (asset != null)
                     {
-                        // --- STEP 1: Update the actual Asset in the database ---
                         asset.AssignedEmployeeId = selectedEmp.EmployeeId;
                         asset.Status = "Assigned";
                         asset.UpdatedAt = DateTime.Now;
 
-                        // --- STEP 2: Create the permanent Activity Log ---
                         db.ActivityLogs.Add(new ActivityLog
                         {
                             Details = $"{asset.AssetName} assigned to {selectedEmp.FullName}",
@@ -74,10 +89,11 @@ namespace AssetHub
                             ActionDate = DateTime.Now
                         });
 
-                        // --- STEP 3: Save BOTH changes to the database ---
                         db.SaveChanges();
 
-                        NotificationService.Show("Assigned", $"Asset linked to {selectedEmp.FullName}", NotificationToast.NotificationType.Info);
+                        NotificationService.Show("Assignment Success",
+                            $"{asset.AssetName} assigned to {selectedEmp.FullName}",
+                            NotificationToast.NotificationType.Success);
 
                         this.DialogResult = true;
                         this.Close();

@@ -58,10 +58,10 @@
                     </Grid.ColumnDefinitions>
 
                     <materialDesign:PackIcon Kind="Magnify" 
-                                            VerticalAlignment="Center" 
-                                            HorizontalAlignment="Center" 
-                                            Foreground="#94A3B8"
-                                            Width="20" Height="20"/>
+                                             VerticalAlignment="Center" 
+                                             HorizontalAlignment="Center" 
+                                             Foreground="#94A3B8"
+                                             Width="20" Height="20"/>
 
                     <TextBox x:Name="txtSearch" 
                              Grid.Column="1" 
@@ -83,9 +83,10 @@
                     <ColumnDefinition Width="1.5*"/>
                     <ColumnDefinition Width="1.5*"/>
                     <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="18"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Employee" Foreground="#64748B" FontWeight="SemiBold" FontSize="12"/>
+                <TextBlock Grid.Column="0" Text="Employee" Foreground="#64748B" FontWeight="SemiBold" FontSize="12"/>
                 <TextBlock Grid.Column="1" Text="Department" Foreground="#64748B" FontWeight="SemiBold" FontSize="12"/>
                 <TextBlock Grid.Column="2" Text="Position" Foreground="#64748B" FontWeight="SemiBold" FontSize="12"/>
                 <TextBlock Grid.Column="3" Text="Assigned Assets" Foreground="#64748B" FontWeight="SemiBold" FontSize="12"/>
@@ -98,7 +99,21 @@
             <ItemsControl x:Name="EmployeeItemsControl">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,12">
+                        <Border BorderBrush="#F1F5F9" 
+                                BorderThickness="0,0,0,1" 
+                                Padding="20,12"
+                                Cursor="Hand"
+                                MouseDown="EmployeeRow_MouseDown">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="White"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="LightGray"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2.5*"/>
