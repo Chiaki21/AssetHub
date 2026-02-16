@@ -63,7 +63,7 @@ namespace AssetHub
             }
         }
 
-        // 2. Load Assets (CRASH FIX IS HERE)
+        // 2. Load Assets 
 
         private List<Asset> _allAssets = new List<Asset>();
         private void LoadAssets()
@@ -72,10 +72,11 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
-                    // 1. Fetch data with Eager Loading
-                    // We remove AsNoTracking to ensure the objects are fully "attached"
+                    // 1. Fetch data with Eager Loading + Sort by Newest First
+                    // We use OrderByDescending(a => a.AssetId) to put the latest additions at the top
                     _allAssets = db.Assets
                                    .Include(a => a.AssignedEmployee)
+                                   .OrderByDescending(a => a.AssetId)
                                    .ToList();
 
                     // 2. Sanitize and Verify
@@ -83,7 +84,7 @@ namespace AssetHub
                     {
                         if (string.IsNullOrEmpty(asset.Status)) asset.Status = "Available";
 
-                        // This will print to your "Output" window in Visual Studio
+                        // Debug info for your Visual Studio Output window
                         if (asset.AssignedEmployee != null)
                         {
                             System.Diagnostics.Debug.WriteLine($"SUCCESS: {asset.AssetName} linked to {asset.AssignedEmployee.FullName}");
@@ -128,17 +129,17 @@ namespace AssetHub
             var asset = (sender as Button)?.DataContext as Asset;
             if (asset == null) return;
 
-            // Only allow unassigning if the asset is actually assigned
             if (asset.Status != "Assigned")
             {
-                MessageBox.Show("This asset is already unassigned.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                NotificationService.Show("Info", "This asset is already unassigned.", NotificationToast.NotificationType.Info);
                 return;
             }
 
-            var result = MessageBox.Show($"Are you sure you want to unassign {asset.AssetName}?",
-                                       "Confirm Unassign", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            // NEW: Use the custom window instead of MessageBox
+            var dialog = new ConfirmUnassignWindow(asset);
+            dialog.Owner = Window.GetWindow(this);
 
-            if (result == MessageBoxResult.Yes)
+            if (dialog.ShowDialog() == true)
             {
                 try
                 {
@@ -161,13 +162,13 @@ namespace AssetHub
                             db.SaveChanges();
 
                             NotificationService.Show(
-    "Asset Returned",
-    $"{dbAsset.AssetName} was unassigned and returned to inventory.",
-    NotificationToast.NotificationType.Info
-);
+                                "Asset Returned",
+                                $"{dbAsset.AssetName} is now available.",
+                                NotificationToast.NotificationType.Info
+                            );
                         }
                     }
-                    LoadAssets(); // Refresh the UI
+                    LoadAssets();
                 }
                 catch (Exception ex)
                 {

@@ -11,13 +11,23 @@
                        FontSize="16" FontWeight="Bold" 
                        Foreground="#333"
                        Margin="0,0,0,15"/>
-            <TextBlock Text="Select Employee:" Foreground="Gray"/>
+
+            <TextBlock Text="Select or Type Employee Name:" Foreground="Gray" Margin="0,0,0,5"/>
 
             <ComboBox x:Name="CbEmployees" 
                       Height="35" 
-                      DisplayMemberPath="FullName" 
                       SelectedValuePath="EmployeeId"
-                      Margin="0,0,0,20"/>
+                      IsEditable="True"
+                      IsTextSearchEnabled="True"
+                      TextSearch.TextPath="FullName"
+                      Margin="0,0,0,20">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding FullName}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Cancel" Width="80" Height="30" Margin="0,0,10,0"
                         Click="BtnCancel_Click"/>
