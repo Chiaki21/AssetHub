@@ -57,7 +57,7 @@
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-                <Button Content="📄 Generate Report" Click="BtnExportPDF_Click" Background="White" Foreground="#1E293B" BorderBrush="#E2E8F0" Padding="20,0" FontWeight="SemiBold" Margin="0,0,10,0" Height="45" VerticalContentAlignment="Center">
+                <Button Content="📄 Generate Report" Click="BtnExportPDF_Click" Background="White" Foreground="#1E293B" BorderBrush="#E2E8F0" Padding="20,0" FontWeight="SemiBold" Margin="0,0,10,0" Height="45" VerticalContentAlignment="Center" materialDesign:ButtonAssist.CornerRadius="8">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="8"/>
