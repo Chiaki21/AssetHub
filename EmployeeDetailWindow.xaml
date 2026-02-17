@@ -23,7 +23,17 @@
                                    Foreground="#2563EB" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="20,0,0,0" VerticalAlignment="Center">
-                        <TextBlock x:Name="TxtFullName" Text="Employee Name" FontSize="24" FontWeight="Bold" Foreground="#1E293B"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="TxtFullName" Text="Employee Name" FontSize="24" FontWeight="Bold" Foreground="#1E293B"/>
+
+                            <Button x:Name="BtnEditEmployee"
+                Click="BtnEditEmployee_Click"
+                Style="{StaticResource MaterialDesignIconButton}"
+                Width="30" Height="30" Margin="10,0,0,0"
+                Foreground="#64748B" ToolTip="Edit Employee Details">
+                                <materialDesign:PackIcon Kind="PencilOutline" Width="18" Height="18"/>
+                            </Button>
+                        </StackPanel>
                         <TextBlock x:Name="TxtJobTitle" Text="Software Engineer" FontSize="14" Foreground="#64748B"/>
                     </StackPanel>
                 </StackPanel>

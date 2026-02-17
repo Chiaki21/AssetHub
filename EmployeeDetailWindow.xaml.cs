@@ -31,6 +31,23 @@ namespace AssetHub
                     TxtFullName.Text = employee.FullName;
                     TxtJobTitle.Text = employee.JobTitle;
 
+                    if (!string.IsNullOrWhiteSpace(employee.FullName))
+                    {
+                        // Split name by spaces and remove empty entries
+                        var nameParts = employee.FullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (nameParts.Length >= 2)
+                        {
+                            // Takes first letter of first name and first letter of last name
+                            TxtInitials.Text = $"{nameParts[0][0]}{nameParts[nameParts.Length - 1][0]}".ToUpper();
+                        }
+                        else if (nameParts.Length == 1)
+                        {
+                            // If only one name exists, just take the first letter
+                            TxtInitials.Text = nameParts[0][0].ToString().ToUpper();
+                        }
+                    }
+
                     // Handle the UI States
                     if (employee.Assets != null && employee.Assets.Any())
                     {
@@ -166,6 +183,23 @@ namespace AssetHub
                         MessageBox.Show($"Error: {ex.Message}");
                     }
                 }
+            }
+        }
+
+        private void BtnEditEmployee_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. Create the Edit Window (we'll create this file next)
+            EditEmployeeWindow editWin = new EditEmployeeWindow(_employeeId);
+            editWin.Owner = this;
+
+            // 2. If the user saves their changes
+            if (editWin.ShowDialog() == true)
+            {
+                // 3. Refresh the details in this window to show the new Name/Position
+                LoadEmployeeDetails();
+
+                // 4. Notify the user
+                NotificationService.Show("Profile Updated", "Employee information has been successfully changed.", NotificationToast.NotificationType.Success);
             }
         }
     }

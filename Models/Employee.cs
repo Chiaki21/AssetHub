@@ -16,6 +16,8 @@ public partial class Employee
 
     public DateTime DateAdded { get; set; } = DateTime.Now;
 
+    public DateTime? UpdatedAt { get; set; }
+
     public string? Department { get; set; }
 
     public bool? IsActive { get; set; }

@@ -9,9 +9,26 @@ namespace AssetHub
         public MainWindow()
         {
             InitializeComponent();
-            this.Loaded += (s, e) => {
-                MainContentFrame.Navigate(new DashboardPage());
-            };
+
+            // Safety check: use Username if FullName isn't set
+            string displayName = !string.IsNullOrEmpty(SessionManager.FullName)
+                                 ? SessionManager.FullName
+                                 : SessionManager.Username;
+
+            txtUserDisplay.Text = displayName;
+            txtRoleDisplay.Text = SessionManager.Role;
+
+            // Set Initials (e.g., "Justine" -> "JU" or "Brian Jariel" -> "BJ")
+            if (!string.IsNullOrEmpty(displayName))
+            {
+                var parts = displayName.Split(' ');
+                if (parts.Length > 1)
+                    txtUserInitials.Text = (parts[0][0].ToString() + parts[1][0].ToString()).ToUpper();
+                else
+                    txtUserInitials.Text = displayName.Substring(0, Math.Min(2, displayName.Length)).ToUpper();
+            }
+
+            MainContentFrame.Navigate(new DashboardPage());
         }
 
         private void BtnDashboard_Click(object sender, RoutedEventArgs e)
@@ -33,11 +50,15 @@ namespace AssetHub
         }
         private void BtnSignOut_Click(object sender, RoutedEventArgs e)
         {
-            // Create new Login window
+            // Clear session
+            SessionManager.UserId = 0;
+            SessionManager.Username = null;
+
+            // Open Login
             LoginWindow login = new LoginWindow();
             login.Show();
 
-            // Close current Dashboard window
+            // Close the current MainWindow
             this.Close();
         }
     }
