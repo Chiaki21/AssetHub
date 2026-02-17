@@ -1,10 +1,11 @@
 ﻿using AssetHub.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using MaterialDesignThemes.Wpf; // This is the key using statement
+using MaterialDesignThemes.Wpf;
 
 namespace AssetHub
 {
@@ -26,45 +27,100 @@ namespace AssetHub
             {
                 using (var db = new AssetHubDbContext())
                 {
+                    // 1. Stats Cards
                     TxtTotalAssets.Text = db.Assets.Count().ToString();
                     TxtAssignedAssets.Text = db.Assets.Count(a => a.Status == "Assigned").ToString();
                     TxtAvailableAssets.Text = db.Assets.Count(a => a.Status == "Available").ToString();
 
-                    // 1. Stats Cards - Store value
+                    // Calculate Total System Value (Sum of all assets in DB)
                     _totalInventoryValue = db.Assets.Sum(a => a.Price ?? 0);
                     UpdateValueDisplay();
 
-                    // 2. Load Category Distribution
-                    CategorySummaryControl.ItemsSource = db.Assets
-                        .GroupBy(a => a.AssetType)
-                        .Select(g => new {
-                            Category = g.Key ?? "Uncategorized",
-                            Count = g.Count()
+                    // 2. Department Breakdown
+                    // Get all assets that are assigned to someone
+                    var assignedAssets = db.Assets
+                        .Include(a => a.AssignedEmployee)
+                        .Where(a => a.AssignedEmployeeId != null)
+                        .ToList();
+
+                    // Group by Department and calculate
+                    var deptData = assignedAssets
+                        .GroupBy(a => a.AssignedEmployee?.Department ?? "Unassigned")
+                        .Select(g => {
+                            decimal deptTotal = g.Sum(a => a.Price ?? 0);
+
+                            // Logic: If the total system value is 0, we can't show a percentage.
+                            // If the department has assets but no price, show a 1% sliver so it's visible.
+                            double calculatedPercent = 0;
+                            if (_totalInventoryValue > 0)
+                            {
+                                calculatedPercent = (double)(deptTotal / _totalInventoryValue * 100);
+                            }
+                            else if (g.Any())
+                            {
+                                calculatedPercent = 1; // Visual fallback
+                            }
+
+                            return new
+                            {
+                                DepartmentName = g.Key,
+                                TotalValue = deptTotal,
+                                Percentage = calculatedPercent
+                            };
                         })
-                        .OrderByDescending(x => x.Count).ToList();
+                        .OrderByDescending(x => x.TotalValue)
+                        .ToList();
 
-                    // 3. Load Recent Employees
-                    RecentEmployeesControl.ItemsSource = db.Employees
-                        .OrderByDescending(e => e.DateAdded)
-                        .Take(10).ToList();
+                    DeptBreakdownControl.ItemsSource = deptData;
 
-                    // 4. Activity Feed
-                    var recentActivities = db.ActivityLogs
+                    // 3. Top 5 Expensive Assets
+                    TopAssetsControl.ItemsSource = db.Assets
+                        .OrderByDescending(a => a.Price)
+                        .Take(5)
+                        .ToList();
+
+                    // 4. Load Recent Employees
+                    var recentEmployees = db.Employees
+                        .OrderByDescending(e => e.EmployeeId)
+                        .Take(10)
+                        .ToList();
+
+                    RecentEmployeesControl.ItemsSource = recentEmployees.Select(e => new {
+                        e.FullName,
+                        e.JobTitle,
+                        // Using a placeholder or actual DateAdded if it exists
+                        DateAdded = DateTime.Now,
+                        Initials = GetInitials(e.FullName)
+                    }).ToList();
+
+                    // 5. Activity Feed
+                    ActivityFeedControl.ItemsSource = db.ActivityLogs
                         .AsNoTracking()
                         .OrderByDescending(l => l.LogId)
-                        .Take(10).ToList()
+                        .Take(10)
+                        .ToList()
                         .Select(l => new {
                             Description = $"{l.Details} | SN: {l.SerialNumber ?? "N/A"}",
                             TimeAgo = l.ActionDate.ToString("MMM dd, hh:mm tt")
                         }).ToList();
-
-                    ActivityFeedControl.ItemsSource = recentActivities;
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Dashboard Load Error: {ex.Message}");
             }
+        }
+
+        // Helper Method for proper initials (e.g. Brian Jariel -> BJ)
+        private string GetInitials(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "E";
+            var parts = name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 2)
+            {
+                return $"{parts[0][0]}{parts[parts.Length - 1][0]}".ToUpper();
+            }
+            return parts[0][0].ToString().ToUpper();
         }
 
         private void BtnToggleValue_Click(object sender, RoutedEventArgs e)
@@ -75,7 +131,6 @@ namespace AssetHub
 
         private void UpdateValueDisplay()
         {
-            // FIX: Removed 'materialDesign.' prefix
             if (_isValueHidden)
             {
                 TxtTotalValue.Text = "₱ ••••••";

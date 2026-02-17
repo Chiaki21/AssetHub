@@ -68,10 +68,13 @@ public partial class AssetHubDbContext : DbContext
 
             entity.HasIndex(e => e.Username, "UQ__Users__536C85E417093AF6").IsUnique();
 
-            entity.Property(e => e.Password).HasMaxLength(256);
+            // CHANGE THIS LINE: Change .Property(e => e.Password) to .Property(e => e.PasswordHash)
+            entity.Property(e => e.PasswordHash).HasMaxLength(256);
+
             entity.Property(e => e.Role)
                 .HasMaxLength(20)
                 .HasDefaultValue("Admin");
+
             entity.Property(e => e.Username).HasMaxLength(50);
         });
 
