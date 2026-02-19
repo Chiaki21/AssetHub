@@ -21,9 +21,21 @@ namespace AssetHub
             SessionManager.UserId = 0;
             SessionManager.Username = null;
 
-            // 2. Start ONLY the Login Window
+            // 2. Create the LoginWindow instance (but don't Show() it yet)
             LoginWindow login = new LoginWindow();
-            login.Show();
+
+            // 3. Try to auto-login. If successful, jump to MainWindow.
+            if (login.TryAutoLogin())
+            {
+                MainWindow main = new MainWindow();
+                main.Show();
+                login.Close(); // We close the invisible login window to clean up
+            }
+            else
+            {
+                // 4. If auto-login fails, show the Login screen as usual
+                login.Show();
+            }
         }
     }
 }

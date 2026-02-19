@@ -11,6 +11,8 @@ namespace AssetHub.Models
         public string PasswordHash { get; set; } 
         public string FullName { get; set; }
         public string Role { get; set; } = "User";
+
+        public string? Email { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

@@ -50,6 +50,10 @@ namespace AssetHub
         }
         private void BtnSignOut_Click(object sender, RoutedEventArgs e)
         {
+            // RESET REMEMBER ME ON SIGN OUT
+            AssetHub.Properties.Settings.Default.IsRemembered = false;
+            AssetHub.Properties.Settings.Default.Save();
+
             // Clear session
             SessionManager.UserId = 0;
             SessionManager.Username = null;
