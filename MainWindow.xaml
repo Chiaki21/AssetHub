@@ -106,10 +106,7 @@
                                VerticalAlignment="Center" Foreground="#0F172A"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <materialDesign:PackIcon Kind="BellOutline" Foreground="#64748B" Width="22" Height="22" Margin="0,0,20,0" VerticalAlignment="Center"/>
-                        <Border Width="35" Height="35" CornerRadius="17.5" Background="#F1F5F9">
-                            <materialDesign:PackIcon Kind="AccountCircle" Foreground="#94A3B8" Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                        
                     </StackPanel>
                 </Grid>
             </Border>
