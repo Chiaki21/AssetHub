@@ -161,11 +161,10 @@ namespace AssetHub
 
                             db.SaveChanges();
 
-                            NotificationService.Show(
-                                "Asset Returned",
-                                $"{dbAsset.AssetName} is now available.",
-                                NotificationToast.NotificationType.Info
-                            );
+                            if (Window.GetWindow(this) is MainWindow mainWindow)
+                            {
+                                mainWindow.ShowNotification($"'{dbAsset.AssetName}' has been unassigned and is now available.");
+                            }
                         }
                     }
                     LoadAssets();
@@ -206,11 +205,10 @@ namespace AssetHub
                     LoadAssets();
 
                     // Use the name in the notification
-                    NotificationService.Show(
-                        "Asset Deleted",
-                        $"{deletedName} has been permanently removed.",
-                        NotificationToast.NotificationType.Warning
-                    );
+                    if (Window.GetWindow(this) is MainWindow mainWindow)
+                    {
+                        mainWindow.ShowNotification($"{deletedName} permanently removed.");
+                    }
                 }
             }
             catch (Exception ex)
@@ -222,19 +220,25 @@ namespace AssetHub
         // 5. Assign Button (Placeholder)
         private void BtnAssign_Click(object sender, RoutedEventArgs e)
         {
-            // Get the asset from the row where the button was clicked
-            var button = sender as Button;
-            var asset = button.DataContext as Asset;
-
+            var asset = (sender as Button)?.DataContext as Asset;
             if (asset == null) return;
 
-            // Open the Assign Window and pass the asset to it
             AssignAssetWindow assignWindow = new AssignAssetWindow(asset);
 
-            // If the window returns "true" (Success), reload the list to show changes
             if (assignWindow.ShowDialog() == true)
             {
+                // 1. Refresh the list
                 LoadAssets();
+
+                // 2. Find the fresh data from the list we just loaded
+                var updatedAsset = _allAssets.FirstOrDefault(a => a.AssetId == asset.AssetId);
+                string employeeName = updatedAsset?.AssignedEmployee?.FullName ?? "Employee";
+
+                // 3. Show the detailed toast
+                if (Window.GetWindow(this) is MainWindow mainWindow)
+                {
+                    mainWindow.ShowNotification($"'{updatedAsset.AssetName}' assigned to {employeeName}");
+                }
             }
         }
         private void BtnEdit_Click(object sender, RoutedEventArgs e)

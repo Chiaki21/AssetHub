@@ -22,65 +22,39 @@ public partial class AssetHubDbContext : DbContext
     public virtual DbSet<ActivityLog> ActivityLogs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=AssetHubDB;Trusted_Connection=True;TrustServerCertificate=True;");
+    {
+        // localhost,1433 points to your Docker container
+        // User Id 'sa' and the password match your docker-compose.yml file
+        optionsBuilder.UseSqlServer("Server=localhost,1433;Database=AssetHubDB;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;");
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
-        modelBuilder.Entity<ActivityLog>()
-        .HasKey(l => l.LogId);
-
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Asset>(entity =>
+        // 1. Seed a Default Admin User (Password is 'testuser@123' hashed)
+        modelBuilder.Entity<User>().HasData(new User
         {
-            entity.HasKey(e => e.AssetId);
-
-            entity.HasIndex(e => e.SerialNumber).IsUnique();
-
-            entity.Property(e => e.AssetName).HasMaxLength(100);
-            entity.Property(e => e.AssetType).HasMaxLength(50);
-            entity.Property(e => e.SerialNumber).HasMaxLength(100);
-            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Available");
-            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
-
-            // --- CLEAN RELATIONSHIP (No hardcoded constraint names) ---
-            entity.HasOne(d => d.AssignedEmployee)
-                .WithMany(p => p.Assets)
-                .HasForeignKey(d => d.AssignedEmployeeId)
-                .OnDelete(DeleteBehavior.SetNull);
+            UserId = 1,
+            Username = "admin",
+            FullName = "System Administrator",
+            Email = "testuser@assethub.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("testuser@123"),
+            Role = "Admin",
+            CreatedAt = DateTime.Now
         });
 
-        modelBuilder.Entity<Employee>(entity =>
-        {
-            entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04F117357430D");
+        // 2. Seed some Employees
+        modelBuilder.Entity<Employee>().HasData(
+            new Employee { EmployeeId = 1, FullName = "Brian Jariel", JobTitle = "IT Developer", Department = "IT", IsActive = true },
+            new Employee { EmployeeId = 2, FullName = "Alice Chen", JobTitle = "Manager", Department = "HR", IsActive = true }
+        );
 
-            entity.Property(e => e.Department).HasMaxLength(50);
-            entity.Property(e => e.Email).HasMaxLength(100);
-            entity.Property(e => e.FullName).HasMaxLength(100);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.JobTitle).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CC4C48118427");
-
-            entity.HasIndex(e => e.Username, "UQ__Users__536C85E417093AF6").IsUnique();
-
-            entity.Property(e => e.PasswordHash).HasMaxLength(256);
-
-        
-            entity.Property(e => e.Email).HasMaxLength(100);
-
-            entity.Property(e => e.Role)
-                .HasMaxLength(20)
-                .HasDefaultValue("Admin");
-
-            entity.Property(e => e.Username).HasMaxLength(50);
-        });
-
-        OnModelCreatingPartial(modelBuilder);
+        // 3. Seed some Assets
+        modelBuilder.Entity<Asset>().HasData(
+            new Asset { AssetId = 1, AssetName = "MacBook Pro M3", AssetType = "Laptop", SerialNumber = "SN12345", Status = "Available", Price = 2500 },
+            new Asset { AssetId = 2, AssetName = "Dell UltraSharp 27", AssetType = "Monitor", SerialNumber = "SN67890", Status = "Assigned", AssignedEmployeeId = 1, Price = 500 }
+        );
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

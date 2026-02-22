@@ -14,6 +14,8 @@ public partial class Employee
 
     public string JobTitle { get; set; }
 
+    public string? Phone { get; set; }
+
     public DateTime DateAdded { get; set; } = DateTime.Now;
 
     public DateTime? UpdatedAt { get; set; }

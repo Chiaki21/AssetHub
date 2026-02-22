@@ -176,7 +176,7 @@
                 <Border Background="White" CornerRadius="12" BorderBrush="#E2E8F0" BorderThickness="1" Padding="25">
                     <StackPanel>
                         <TextBlock Text="Recent Activity" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,15"/>
-                        <ScrollViewer Height="180" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Height="250" VerticalScrollBarVisibility="Auto">
                             <ItemsControl x:Name="ActivityFeedControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>

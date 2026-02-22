@@ -60,28 +60,23 @@
 
                 <StackPanel Grid.Row="2" Margin="15,0,15,30">
                     <Separator Background="#1E293B" Margin="10,0,10,20"/>
-
                     <Grid Margin="10,0,10,20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
                         <Border Width="40" Height="40" CornerRadius="20" Background="#3B82F6">
                             <TextBlock x:Name="txtUserInitials" Text="JU" Foreground="White" FontWeight="Bold" 
                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Border>
-
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock x:Name="txtUserDisplay" Text="Username" Foreground="White" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="ShieldCheck" Foreground="#3B82F6" Width="12" Height="12" VerticalAlignment="Center"/>
                                 <TextBlock x:Name="txtRoleDisplay" Text="Administrator" Foreground="#94A3B8" FontSize="10" Margin="4,0,0,0"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
-
                     <Button x:Name="BtnSignOut" Click="BtnSignOut_Click" 
                             Background="Transparent" BorderBrush="Transparent" Foreground="#94A3B8"
                             Height="45" HorizontalContentAlignment="Left" Padding="10,0" Cursor="Hand">
@@ -104,18 +99,21 @@
                 <Grid Margin="40,0">
                     <TextBlock x:Name="PageTitle" Text="Dashboard" FontSize="22" FontWeight="Bold" 
                                VerticalAlignment="Center" Foreground="#0F172A"/>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        
-                    </StackPanel>
                 </Grid>
             </Border>
 
             <Frame x:Name="MainContentFrame" 
-                    Grid.Row="1"
-                    NavigationUIVisibility="Hidden" 
-                    HorizontalAlignment="Stretch" 
-                    VerticalAlignment="Stretch"/>
+                   Grid.Row="1"
+                   NavigationUIVisibility="Hidden" 
+                   HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Stretch"/>
+
+            <materialDesign:Snackbar x:Name="MainSnackbar" 
+                                     MessageQueue="{materialDesign:MessageQueue}"
+                                     Grid.Row="1"
+                                     VerticalAlignment="Bottom"
+                                     HorizontalAlignment="Center"
+                                     Margin="0,0,0,30"/>
         </Grid>
     </Grid>
 </Window>

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Threading; // Required for DispatcherPriority
+using materialDesign = MaterialDesignThemes.Wpf; // Useful for explicit typing
 
 namespace AssetHub
 {
@@ -10,7 +10,10 @@ namespace AssetHub
         {
             InitializeComponent();
 
-            // Safety check: use Username if FullName isn't set
+            // Initialize the Snackbar Message Queue
+            MainSnackbar.MessageQueue = new materialDesign.SnackbarMessageQueue(TimeSpan.FromSeconds(3));
+
+            // Set User Display Information
             string displayName = !string.IsNullOrEmpty(SessionManager.FullName)
                                  ? SessionManager.FullName
                                  : SessionManager.Username;
@@ -18,7 +21,7 @@ namespace AssetHub
             txtUserDisplay.Text = displayName;
             txtRoleDisplay.Text = SessionManager.Role;
 
-            // Set Initials (e.g., "Justine" -> "JU" or "Brian Jariel" -> "BJ")
+            // Generate Initials
             if (!string.IsNullOrEmpty(displayName))
             {
                 var parts = displayName.Split(' ');
@@ -28,9 +31,17 @@ namespace AssetHub
                     txtUserInitials.Text = displayName.Substring(0, Math.Min(2, displayName.Length)).ToUpper();
             }
 
+            // Load initial page
             MainContentFrame.Navigate(new DashboardPage());
         }
 
+        // PUBLIC HELPER METHOD: Call this from any Page to show a toast
+        public void ShowNotification(string message)
+        {
+            MainSnackbar.MessageQueue?.Enqueue(message);
+        }
+
+        #region Navigation
         private void BtnDashboard_Click(object sender, RoutedEventArgs e)
         {
             PageTitle.Text = "Dashboard";
@@ -48,21 +59,21 @@ namespace AssetHub
             PageTitle.Text = "Assets";
             MainContentFrame.Navigate(new AssetPage());
         }
+        #endregion
+
         private void BtnSignOut_Click(object sender, RoutedEventArgs e)
         {
-            // RESET REMEMBER ME ON SIGN OUT
+            // Clear Auto-Login settings
             AssetHub.Properties.Settings.Default.IsRemembered = false;
             AssetHub.Properties.Settings.Default.Save();
 
-            // Clear session
+            // Clear session data
             SessionManager.UserId = 0;
             SessionManager.Username = null;
 
-            // Open Login
+            // Redirect to Login
             LoginWindow login = new LoginWindow();
             login.Show();
-
-            // Close the current MainWindow
             this.Close();
         }
     }

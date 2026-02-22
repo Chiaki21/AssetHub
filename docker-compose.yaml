@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  # This is the name of our service
+  assethub-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: AssetHubSQL_Container
+    ports:
+      - "1433:1433" # Maps computer's port 1433 to Docker's port 1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrongPassword123!
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+# This ensures data isn't deleted when we stop the container
+volumes:
+  mssql_data:

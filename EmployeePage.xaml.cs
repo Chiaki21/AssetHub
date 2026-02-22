@@ -74,9 +74,21 @@ namespace AssetHub
         private void BtnAddEmployee_Click(object sender, RoutedEventArgs e)
         {
             AddEmployeeWindow addWin = new AddEmployeeWindow();
+            addWin.Owner = Window.GetWindow(this);
+
             if (addWin.ShowDialog() == true)
             {
+                // 1. Refresh the UI list
                 LoadEmployees();
+
+                // 2. Get the name from the window we just closed
+                string newName = addWin.EmployeeName;
+
+                // 3. Show the personalized toast
+                if (Window.GetWindow(this) is MainWindow mainWindow)
+                {
+                    mainWindow.ShowNotification($"Welcome to the team, {newName}!");
+                }
             }
         }
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
@@ -91,31 +103,32 @@ namespace AssetHub
             {
                 try
                 {
+                    string deletedName = employeeFromUi.FullName; // Store for the toast
+
                     using (var db = new AssetHubDbContext())
                     {
-                        // 2. Fetch the "Fresh" employee from the DB including their assets
-                        // This prevents the "Already being tracked" error
                         var employeeToDelete = db.Employees
                             .Include(emp => emp.Assets)
                             .FirstOrDefault(emp => emp.EmployeeId == employeeFromUi.EmployeeId);
 
                         if (employeeToDelete != null)
                         {
-                            // 3. Unassign all linked assets
                             foreach (var asset in employeeToDelete.Assets)
                             {
                                 asset.AssignedEmployeeId = null;
                                 asset.Status = "Available";
                             }
 
-                            // 4. Delete the employee
                             db.Employees.Remove(employeeToDelete);
-
-                            // 5. Save everything in one go
                             db.SaveChanges();
-                        }
 
-                        LoadEmployees(); // Refresh your beautiful UI list
+                            // Show the toast
+                            if (Window.GetWindow(this) is MainWindow mainWindow)
+                            {
+                                mainWindow.ShowNotification($"{deletedName} has been removed and linked assets updated.");
+                            }
+                        }
+                        LoadEmployees();
                     }
                 }
                 catch (Exception ex)
