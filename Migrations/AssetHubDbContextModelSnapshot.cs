@@ -56,13 +56,11 @@ namespace AssetHub.Migrations
 
                     b.Property<string>("AssetName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AssetType")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("AssignedEmployeeId")
                         .HasColumnType("int");
@@ -71,22 +69,18 @@ namespace AssetHub.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("Price")
-                        .HasColumnType("decimal(18, 2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("PurchaseDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SerialNumber")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Available");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -95,10 +89,28 @@ namespace AssetHub.Migrations
 
                     b.HasIndex("AssignedEmployeeId");
 
-                    b.HasIndex("SerialNumber")
-                        .IsUnique();
-
                     b.ToTable("Assets");
+
+                    b.HasData(
+                        new
+                        {
+                            AssetId = 1,
+                            AssetName = "MacBook Pro M3",
+                            AssetType = "Laptop",
+                            Price = 2500m,
+                            SerialNumber = "SN12345",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            AssetId = 2,
+                            AssetName = "Dell UltraSharp 27",
+                            AssetType = "Monitor",
+                            AssignedEmployeeId = 1,
+                            Price = 500m,
+                            SerialNumber = "SN67890",
+                            Status = "Assigned"
+                        });
                 });
 
             modelBuilder.Entity("AssetHub.Models.Employee", b =>
@@ -113,35 +125,51 @@ namespace AssetHub.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Department")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("EmployeeId")
-                        .HasName("PK__Employee__7AD04F117357430D");
+                    b.HasKey("EmployeeId");
 
                     b.ToTable("Employees");
+
+                    b.HasData(
+                        new
+                        {
+                            EmployeeId = 1,
+                            DateAdded = new DateTime(2026, 2, 22, 17, 47, 47, 502, DateTimeKind.Local).AddTicks(900),
+                            Department = "IT",
+                            FullName = "Brian Jariel",
+                            IsActive = true,
+                            JobTitle = "IT Developer"
+                        },
+                        new
+                        {
+                            EmployeeId = 2,
+                            DateAdded = new DateTime(2026, 2, 22, 17, 47, 47, 502, DateTimeKind.Local).AddTicks(913),
+                            Department = "HR",
+                            FullName = "Alice Chen",
+                            IsActive = true,
+                            JobTitle = "Manager"
+                        });
                 });
 
             modelBuilder.Entity("AssetHub.Models.User", b =>
@@ -152,37 +180,50 @@ namespace AssetHub.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<string>("Password")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Admin");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserId")
-                        .HasName("PK__Users__1788CC4C48118427");
-
-                    b.HasIndex(new[] { "Username" }, "UQ__Users__536C85E417093AF6")
-                        .IsUnique();
+                    b.HasKey("UserId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            CreatedAt = new DateTime(2026, 2, 22, 17, 47, 47, 501, DateTimeKind.Local).AddTicks(9943),
+                            Email = "testuser@assethub.com",
+                            FullName = "System Administrator",
+                            PasswordHash = "$2a$11$xtmgAtVQidDZS/97ueb9Fuw1rNcPVlyDn1KJkesBU9ggXAvVvuZPy",
+                            Role = "Admin",
+                            Username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("AssetHub.Models.Asset", b =>
                 {
                     b.HasOne("AssetHub.Models.Employee", "AssignedEmployee")
                         .WithMany("Assets")
-                        .HasForeignKey("AssignedEmployeeId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("AssignedEmployeeId");
 
                     b.Navigation("AssignedEmployee");
                 });
