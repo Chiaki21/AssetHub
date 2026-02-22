@@ -1,126 +1,61 @@
-🚀 AssetHub - IT Asset Management System
+# AssetHub 🚀
 
-AssetHub is a modern WPF-based desktop application designed for IT departments to track hardware inventory, manage employee assignments, and maintain a permanent audit log of all equipment movement.
+AssetHub is a professional-grade Windows desktop application for managing IT inventory and employee asset assignments. Built with **C#**, **WPF**, and **.NET 8**, it utilizes **Docker** for database containerization to ensure a seamless "zero-configuration" setup.
 
+## 🌟 Key Features
+* **Inventory Management:** Track hardware, serial numbers, and purchase dates.
+* **Employee Tracking:** Manage staff members and see their assigned equipment at a glance.
+* **Real-time Notifications:** Modern Material Design "Snackbars" for instant user feedback.
+* **PDF Reporting:** Generate professional inventory reports using QuestPDF.
+* **Auto-Healing Database:** Uses Entity Framework Core Migrations to automatically build the database schema on first launch.
 
+---
 
-✨ Features
+## 🛠 Tech Stack
+* **Frontend:** WPF with Material Design In XAML
+* **Backend:** .NET 8 (C#)
+* **Database:** Microsoft SQL Server (running in **Docker**)
+* **ORM:** Entity Framework Core (Code-First)
+* **Containerization:** Docker & Docker Compose
 
-Inventory Management: Full CRUD operations for hardware with manual Serial Number entry and duplicate checks.
+---
 
+## 🚀 Quick Start (For Non-Technical Users)
 
+I've designed AssetHub to be as easy to start as possible. No SQL Server installation is required on your machine.
 
-Dynamic Dashboard: Real-time stats on asset distribution and total inventory value.
+### Prerequisites
+1.  **Docker Desktop:** [Download and install here](https://www.docker.com/products/docker-desktop/). (Ensure it is running before launching the app).
+2.  **.NET 8 Runtime:** Usually included with Windows, but can be [found here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
 
+### Installation
+1.  Go to the **[Releases](https://github.com/Chiaki21/AssetHub/releases/tag/AssetHub)** page of this repository.
+2.  Download the `AssetHub.zip` file.
+3.  **Extract** the ZIP folder to your desktop.
+4.  Double-click **`Run_AssetHub.bat`**.
+5.  Run the AssetHub.exe
+6.  Register and account and use it for login, it will take you to dashboard, or you can use the test credentials Email: testuser@assethub.com Password: testuser@123
 
+> **Note:** On the first run, the app may take a few seconds to start while Docker pulls the SQL Server image and builds the database tables.
 
-Activity Logs: A permanent history of every assignment and return, ensuring you never lose track of asset movement.
+---
 
+## 👨‍💻 Developer Setup
+If you want to contribute or modify the code:
+1. Clone the repo: `git clone https://github.com/Chiaki21/AssetHub`
+2. Open `AssetHub.sln` in **Visual Studio 2022**.
+3. Ensure Docker Desktop is running.
+4. Press **F5** to build and run.
 
+---
 
-Professional Notifications: Sleek, color-coded "Toast" notifications for a responsive user experience.
+## 📸 Screenshots
+<img width="888" height="667" alt="image" src="https://github.com/user-attachments/assets/670949f0-13fc-4c63-9a09-a9920a33cc0f" />
+<img width="1576" height="781" alt="image" src="https://github.com/user-attachments/assets/3e0d30d6-db35-462b-ac8c-28935aab86dd" />
+<img width="1583" height="780" alt="image" src="https://github.com/user-attachments/assets/639f3cba-6316-4252-b05f-335307feb84f" />
+<img width="1572" height="768" alt="image" src="https://github.com/user-attachments/assets/058d6d5e-a9e8-4694-b50f-38d88c177fdc" />
 
+---
 
-
-PDF Reporting: Generate professional inventory reports using QuestPDF.
-
-
-
-🛠 Tech Stack
-
-Language: C# / .NET 8.0+
-
-
-
-Framework: Windows Presentation Foundation (WPF)
-
-
-
-Database: SQL Server
-
-
-
-ORM: Entity Framework Core (Database First)
-
-
-
-UI Library: Material Design in XAML
-
-
-
-🚀 Getting Started
-
-1\. Database Setup
-
-To run this project, you need to have SQL Server installed. Run the following scripts to prepare your database:
-
-
-
-SQL
-
-
-
--- Create the Assets Table
-
-CREATE TABLE Assets (
-
-&nbsp;   AssetId INT PRIMARY KEY IDENTITY(1,1),
-
-&nbsp;   AssetName NVARCHAR(200),
-
-&nbsp;   AssetType NVARCHAR(100),
-
-&nbsp;   SerialNumber NVARCHAR(100) UNIQUE,
-
-&nbsp;   Status NVARCHAR(50),
-
-&nbsp;   Price DECIMAL(18,2),
-
-&nbsp;   CreatedAt DATETIME DEFAULT GETDATE(),
-
-&nbsp;   UpdatedAt DATETIME DEFAULT GETDATE(),
-
-&nbsp;   AssignedEmployeeId INT
-
-);
-
-
-
--- Create the Activity Logs Table
-
-CREATE TABLE ActivityLogs (
-
-&nbsp;   LogId INT PRIMARY KEY IDENTITY(1,1),
-
-&nbsp;   Details NVARCHAR(MAX),
-
-&nbsp;   ActionDate DATETIME DEFAULT GETDATE(),
-
-&nbsp;   SerialNumber NVARCHAR(100)
-
-);
-
-2\. Configuration
-
-Update your AssetHubDbContext.cs connection string to point to your local SQL Server instance:
-
-
-
-C#
-
-
-
-optionsBuilder.UseSqlServer("Server=YOUR\_SERVER\_NAME;Database=AssetHubDb;Trusted\_Connection=True;");
-
-📸 Preview
-
-Dashboard: View your IT environment at a glance.
-
-
-
-Inventory: Manage and filter your hardware assets.
-
-
-
-Audit Log: Track who had what and when.
-
+## 📄 License
+This project is for portfolio and educational purposes.
