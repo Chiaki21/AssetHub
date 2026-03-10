@@ -155,7 +155,7 @@ namespace AssetHub.Migrations
                         new
                         {
                             EmployeeId = 1,
-                            DateAdded = new DateTime(2026, 2, 22, 17, 47, 47, 502, DateTimeKind.Local).AddTicks(900),
+                            DateAdded = new DateTime(2026, 3, 10, 22, 3, 34, 584, DateTimeKind.Local).AddTicks(7793),
                             Department = "IT",
                             FullName = "Brian Jariel",
                             IsActive = true,
@@ -164,7 +164,7 @@ namespace AssetHub.Migrations
                         new
                         {
                             EmployeeId = 2,
-                            DateAdded = new DateTime(2026, 2, 22, 17, 47, 47, 502, DateTimeKind.Local).AddTicks(913),
+                            DateAdded = new DateTime(2026, 3, 10, 22, 3, 34, 584, DateTimeKind.Local).AddTicks(7800),
                             Department = "HR",
                             FullName = "Alice Chen",
                             IsActive = true,
@@ -210,10 +210,10 @@ namespace AssetHub.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2026, 2, 22, 17, 47, 47, 501, DateTimeKind.Local).AddTicks(9943),
+                            CreatedAt = new DateTime(2026, 3, 10, 22, 3, 34, 584, DateTimeKind.Local).AddTicks(7038),
                             Email = "testuser@assethub.com",
                             FullName = "System Administrator",
-                            PasswordHash = "$2a$11$xtmgAtVQidDZS/97ueb9Fuw1rNcPVlyDn1KJkesBU9ggXAvVvuZPy",
+                            PasswordHash = "$2a$11$bXCKiUd6ZBxmgbmjURRUROUhucZbKHp4hfPVD/4MIKFRTjb9N92cm",
                             Role = "Admin",
                             Username = "admin"
                         });

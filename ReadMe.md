@@ -28,13 +28,34 @@ I've designed AssetHub to be as easy to start as possible. No SQL Server install
 1.  **Docker Desktop:** [Download and install here](https://www.docker.com/products/docker-desktop/). (Ensure it is running before launching the app).
 2.  **.NET 8 Runtime:** Usually included with Windows, but can be [found here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
 
-### Installation
-1.  Go to the **[Releases](https://github.com/Chiaki21/AssetHub/releases/tag/AssetHub)** page of this repository.
-2.  Download the `AssetHub.zip` file.
-3.  **Extract** the ZIP folder to your desktop.
-4.  Double-click **`Run_AssetHub.bat`**.
-5.  Run the AssetHub.exe
-6.  Register and account and use it for login, it will take you to dashboard, or you can use the test credentials Email: testuser@assethub.com Password: testuser@123
+
+
+
+## Setup Instructions (No Database Errors)
+
+1. Install the .NET SDK (8.0 or higher) and Docker Desktop.
+2. Clone this repository.
+3. Open a terminal in the project directory.
+4. Run the setup script:
+   
+   ```powershell
+   ./SETUP.ps1
+   ```
+   
+   This will:
+   - Start the SQL Server Docker container
+   - Drop any existing AssetHubDB database
+   - Apply the latest EF Core migrations
+
+5. Run the application:
+   
+   ```powershell
+   dotnet run --project AssetHub.csproj
+   ```
+
+**Note:** If you change the database schema, always create a new migration and commit it.
+
+ill take you to dashboard, or you can use the test credentials Email: testuser@assethub.com Password: testuser@123
 
 > **Note:** On the first run, the app may take a few seconds to start while Docker pulls the SQL Server image and builds the database tables.
 
