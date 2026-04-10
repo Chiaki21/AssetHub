@@ -65,7 +65,7 @@ ill take you to dashboard, or you can use the test credentials Email: testuser@a
 
 If you want to contribute or modify the code:
 
-1. Clone the repo: `git clone https://github.com/Chiaki21/AssetHub`
+1. Clone the repo: `git clone https://github.com/Bakemono21/AssetHub`
 2. Open `AssetHub.sln` in **Visual Studio 2022**.
 3. Ensure Docker Desktop is running.
 4. Press **F5** to build and run.
